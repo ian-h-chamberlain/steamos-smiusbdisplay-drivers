@@ -1,0 +1,76 @@
+From 5d724e6ab53f38acd4dbd621115c1255975c2d76 Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Sun, 19 Mar 2023 12:36:31 -0400
+Subject: [PATCH] Fix /lib -> /usr/lib to match packaging standards
+
+---
+ install.sh | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/install.sh b/install.sh
+index f852867..5caac9f 100755
+--- a/install.sh
++++ b/install.sh
+@@ -196,11 +196,11 @@ fi
+ }
+ 
+ 
+ add_systemd_service()
+ {
+-  cat > ${DESTDIR}/lib/systemd/system/smiusbdisplay.service <<'EOF'
++  cat > ${DESTDIR}/usr/lib/systemd/system/smiusbdisplay.service <<'EOF'
+ [Unit]
+ Description=SiliconMotion Driver Service
+ After=display-manager.service
+ Conflicts=getty@tty7.service
+ 
+@@ -210,11 +210,11 @@ Restart=always
+ WorkingDirectory=/opt/siliconmotion
+ RestartSec=5
+ 
+ EOF
+ 
+-  chmod 0644 ${DESTDIR}/lib/systemd/system/smiusbdisplay.service
++  chmod 0644 ${DESTDIR}/usr/lib/systemd/system/smiusbdisplay.service
+ }
+ 
+ trigger_udev_if_devices_connected()
+ {
+   for device in $(grep -lw 090c /sys/bus/usb/devices/*/idVendor); do
+@@ -230,11 +230,11 @@ remove_systemd_service()
+ {
+   driver_name="smiusbdisplay"
+   echo "Stopping ${driver_name} systemd service"
+   systemctl stop ${driver_name}.service
+   systemctl disable ${driver_name}.service
+-  rm -f ${DESTDIR}/lib/systemd/system/${driver_name}.service
++  rm -f ${DESTDIR}/usr/lib/systemd/system/${driver_name}.service
+ }
+ 
+ add_pm_script()
+ {
+   cat > ${DESTDIR}/$COREDIR/smipm.sh <<EOF
+@@ -290,18 +290,18 @@ EOF
+   if [ "$1" = "upstart" ]
+   then
+     ln -sf $COREDIR/smipm.sh ${DESTDIR}/etc/pm/sleep.d/smipm.sh
+   elif [ "$1" = "systemd" ]
+   then
+-    ln -sf $COREDIR/smipm.sh ${DESTDIR}/lib/systemd/system-sleep/smipm.sh
++    ln -sf $COREDIR/smipm.sh ${DESTDIR}/usr/lib/systemd/system-sleep/smipm.sh
+   fi
+ }
+ 
+ remove_pm_scripts()
+ {
+   rm -f ${DESTDIR}/etc/pm/sleep.d/smipm.sh
+-  rm -f ${DESTDIR}/lib/systemd/system-sleep/smipm.sh
++  rm -f ${DESTDIR}/usr/lib/systemd/system-sleep/smipm.sh
+ }
+ 
+ cleanup()
+ {
+   rm -rf ${DESTDIR}/$COREDIR
+-- 
+2.39.0
+

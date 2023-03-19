@@ -1,0 +1,380 @@
+From f91e9e6675745478789f2c9c25575f9b3cb7d60e Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Sun, 19 Mar 2023 12:07:19 -0400
+Subject: [PATCH] Support DESTDIR var for non-root installation
+
+---
+ install.sh | 115 +++++++++++++++++++++++++++--------------------------
+ 1 file changed, 58 insertions(+), 57 deletions(-)
+
+diff --git a/install.sh b/install.sh
+index 2c0d970..f852867 100755
+--- a/install.sh
++++ b/install.sh
+@@ -1,8 +1,9 @@
+ #!/bin/bash
+ export LC_ALL=C
+ readonly SELF=$0
++readonly DESTDIR=${DESTDIR:=/}
+ readonly COREDIR=/opt/siliconmotion
+ readonly OTHERPDDIR=/opt/displaylink
+ readonly PRODUCT="Silicon Motion Linux USB Display Software"
+ VERSION=2.12.0.0
+ ACTION=install
+@@ -34,26 +35,26 @@ install_evdi()
+       make -sC "${EVDI}/module" uninstall_dkms
+       return 1
+     fi
+   ) || return 1
+   echo "[[ Installing module configuration files ]]"
+-  printf '%s\n' 'evdi' > /etc/modules-load.d/evdi.conf
++  printf '%s\n' 'evdi' > ${DESTDIR}/etc/modules-load.d/evdi.conf
+ 
+   printf '%s\n' 'options evdi initial_device_count=4' \
+-        > /etc/modprobe.d/evdi.conf
++        > ${DESTDIR}/etc/modprobe.d/evdi.conf
+   EVDI_DRM_DEPS=$(sed -n -e '/^drm_kms_helper/p' /proc/modules | awk '{print $4}' | tr ',' ' ')
+   EVDI_DRM_DEPS=${EVDI_DRM_DEPS/evdi/}
+ 
+   [[ "${EVDI_DRM_DEPS}" ]] && printf 'softdep %s pre: %s\n' 'evdi' "${EVDI_DRM_DEPS}" \
+-        >> /etc/modprobe.d/evdi.conf
++        >> ${DESTDIR}/etc/modprobe.d/evdi.conf
+ 
+ 
+   echo "[[ Backuping EVDI DKMS module ]]"
+   local EVDI_VERSION
+   EVDI_VERSION=$(ls -t /usr/src | grep evdi | head -n1)
+-  cp -rf /usr/src/$EVDI_VERSION   $COREDIR/module
+-  cp /etc/modprobe.d/evdi.conf $COREDIR
++  cp -rf /usr/src/$EVDI_VERSION   ${DESTDIR}/$COREDIR/module
++  cp ${DESTDIR}/etc/modprobe.d/evdi.conf ${DESTDIR}/$COREDIR
+ 
+   echo "[[ Installing EVDI library ]]"
+ 
+   (
+     cd "${EVDI}/library" || return 1
+@@ -61,18 +62,18 @@ install_evdi()
+     if ! make; then
+       echo "Failed to build evdi library." > "$ERRORS"
+       return 1
+     fi
+ 
+-    if ! cp -f libevdi.so "$COREDIR"; then
+-      echo "Failed to copy evdi library to $COREDIR." > "$ERRORS"
++    if ! cp -f libevdi.so "${DESTDIR}/$COREDIR"; then
++      echo "Failed to copy evdi library to ${DESTDIR}/$COREDIR." > "$ERRORS"
+       return 1
+     fi
+ 
+-    chmod 0755 "$COREDIR/libevdi.so"
++    chmod 0755 "${DESTDIR}/$COREDIR/libevdi.so"
+ 	
+-    ln -sf "$COREDIR/libevdi.so"  /usr/lib/libevdi.so.0 
++    ln -sf "$COREDIR/libevdi.so"  ${DESTDIR}/usr/lib/libevdi.so.0 
+ 	
+   ) || return 1
+ }
+ 
+ uninstall_evdi_module()
+@@ -109,11 +110,11 @@ is_32_bit()
+   [ "$(getconf LONG_BIT)" == "32" ]
+ }
+ 
+ add_upstart_script()
+ {
+-  cat > /etc/init/smiusbdisplay.conf <<'EOF'
++  cat > ${DESTDIR}/etc/init/smiusbdisplay.conf <<'EOF'
+ description "SiliconMotion Driver Service"
+ 
+ 
+ start on login-session-start
+ stop on desktop-shutdown
+@@ -151,55 +152,55 @@ script
+     fi
+     exec /opt/siliconmotion/SMIUSBDisplayManager
+ end script
+ EOF
+ 
+-  chmod 0644 /etc/init/smiusbdisplay.conf
++  chmod 0644 ${DESTDIR}/etc/init/smiusbdisplay.conf
+ }
+ 
+ add_smi_script()
+ {
+   MODVER="$1"
+-  cat > /usr/share/X11/xorg.conf.d/20-smi.conf <<'EOF'
++  cat > ${DESTDIR}/usr/share/X11/xorg.conf.d/20-smi.conf <<'EOF'
+ Section "Device"
+         Identifier "SiliconMotion"
+         Driver "modesetting"
+ 	Option "PageFlip" "false"
+ EndSection
+ EOF
+ 
+-chown root: /usr/share/X11/xorg.conf.d/20-smi.conf
+-chmod 644 /usr/share/X11/xorg.conf.d/20-smi.conf
++chown root: ${DESTDIR}/usr/share/X11/xorg.conf.d/20-smi.conf
++chmod 644 ${DESTDIR}/usr/share/X11/xorg.conf.d/20-smi.conf
+ 
+ }
+ 
+ remove_smi_script()
+ {
+-  rm -f /usr/share/X11/xorg.conf.d/20-smi.conf
++  rm -f ${DESTDIR}/usr/share/X11/xorg.conf.d/20-smi.conf
+ }
+ 
+ add_wayland_script()
+ {
+ if [ "$(lsb_release -r --short)"  == "20.04" ];
+ then
+-  mkdir -p /usr/share/xsessions/hidden
+-  dpkg-divert --rename --divert /usr/share/xsessions/hidden/ubuntu.desktop --add /usr/share/xsessions/ubuntu.desktop
++  mkdir -p ${DESTDIR}/usr/share/xsessions/hidden
++  dpkg-divert --rename --divert ${DESTDIR}/usr/share/xsessions/hidden/ubuntu.desktop --add ${DESTDIR}/usr/share/xsessions/ubuntu.desktop
+ fi
+ }
+ 
+ remove_wayland_script()
+ {
+ if [ "$(lsb_release -r --short)"  == "20.04" ];
+ then
+-  dpkg-divert --rename --remove /usr/share/xsessions/ubuntu.desktop
++  dpkg-divert --rename --remove ${DESTDIR}/usr/share/xsessions/ubuntu.desktop
+ fi
+ }
+ 
+ 
+ add_systemd_service()
+ {
+-  cat > /lib/systemd/system/smiusbdisplay.service <<'EOF'
++  cat > ${DESTDIR}/lib/systemd/system/smiusbdisplay.service <<'EOF'
+ [Unit]
+ Description=SiliconMotion Driver Service
+ After=display-manager.service
+ Conflicts=getty@tty7.service
+ 
+@@ -209,36 +210,36 @@ Restart=always
+ WorkingDirectory=/opt/siliconmotion
+ RestartSec=5
+ 
+ EOF
+ 
+-  chmod 0644 /lib/systemd/system/smiusbdisplay.service
++  chmod 0644 ${DESTDIR}/lib/systemd/system/smiusbdisplay.service
+ }
+ 
+ trigger_udev_if_devices_connected()
+ {
+   for device in $(grep -lw 090c /sys/bus/usb/devices/*/idVendor); do
+     udevadm trigger --action=add "$(dirname "$device")"
+   done
+ }
+ remove_upstart_script()
+ {
+-  rm -f /etc/init/smiusbdisplay.conf
++  rm -f ${DESTDIR}/etc/init/smiusbdisplay.conf
+ }
+ 
+ remove_systemd_service()
+ {
+   driver_name="smiusbdisplay"
+   echo "Stopping ${driver_name} systemd service"
+   systemctl stop ${driver_name}.service
+   systemctl disable ${driver_name}.service
+-  rm -f /lib/systemd/system/${driver_name}.service
++  rm -f ${DESTDIR}/lib/systemd/system/${driver_name}.service
+ }
+ 
+ add_pm_script()
+ {
+-  cat > $COREDIR/smipm.sh <<EOF
++  cat > ${DESTDIR}/$COREDIR/smipm.sh <<EOF
+ #!/bin/bash
+ 
+ suspend_usb()
+ {
+ # anything want to do for suspend
+@@ -251,11 +252,11 @@ resume_usb()
+ 
+ EOF
+ 
+   if [ "$1" = "upstart" ]
+   then
+-    cat >> $COREDIR/smipm.sh <<EOF
++    cat >> ${DESTDIR}/$COREDIR/smipm.sh <<EOF
+ case "\$1" in
+   thaw)
+     resume_usb
+     ;;
+   hibernate)
+@@ -270,11 +271,11 @@ case "\$1" in
+ esac
+ 
+ EOF
+   elif [ "$1" = "systemd" ]
+   then
+-    cat >> $COREDIR/smipm.sh <<EOF
++    cat >> ${DESTDIR}/$COREDIR/smipm.sh <<EOF
+ case "\$1/\$2" in
+   pre/*)
+     suspend_usb
+     ;;
+   post/*)
+@@ -283,32 +284,32 @@ case "\$1/\$2" in
+ esac
+ 
+ EOF
+   fi
+ 
+-  chmod 0755 $COREDIR/smipm.sh
++  chmod 0755 ${DESTDIR}/$COREDIR/smipm.sh
+   if [ "$1" = "upstart" ]
+   then
+-    ln -sf $COREDIR/smipm.sh /etc/pm/sleep.d/smipm.sh
++    ln -sf $COREDIR/smipm.sh ${DESTDIR}/etc/pm/sleep.d/smipm.sh
+   elif [ "$1" = "systemd" ]
+   then
+-    ln -sf $COREDIR/smipm.sh /lib/systemd/system-sleep/smipm.sh
++    ln -sf $COREDIR/smipm.sh ${DESTDIR}/lib/systemd/system-sleep/smipm.sh
+   fi
+ }
+ 
+ remove_pm_scripts()
+ {
+-  rm -f /etc/pm/sleep.d/smipm.sh
+-  rm -f /lib/systemd/system-sleep/smipm.sh
++  rm -f ${DESTDIR}/etc/pm/sleep.d/smipm.sh
++  rm -f ${DESTDIR}/lib/systemd/system-sleep/smipm.sh
+ }
+ 
+ cleanup()
+ {
+-  rm -rf $COREDIR
+-  rm -f /usr/bin/smi-installer
+-  rm -f /etc/modprobe.d/evdi.conf
+-  rm -rf /etc/modules-load.d/evdi.conf
++  rm -rf ${DESTDIR}/$COREDIR
++  rm -f ${DESTDIR}/usr/bin/smi-installer
++  rm -f ${DESTDIR}/etc/modprobe.d/evdi.conf
++  rm -rf ${DESTDIR}/etc/modules-load.d/evdi.conf
+ }
+ 
+ binary_location()
+ {
+     local PREFIX="x64"
+@@ -319,17 +320,17 @@ binary_location()
+   
+ }
+ 
+ install()
+ {
+-  echo "Installing"
+-  mkdir -p $COREDIR
+-  chmod 0755 $COREDIR
++  echo "Installing to ${DESTDIR}"
++  mkdir -p ${DESTDIR}/$COREDIR
++  chmod 0755 ${DESTDIR}/$COREDIR
+ 
+-  cp -f "$SELF" "$COREDIR"
+-  ln -sf "$COREDIR/$(basename "$SELF")" /usr/bin/smi-installer
+-  chmod 0755 /usr/bin/smi-installer
++  cp -f "$SELF" "${DESTDIR}/$COREDIR"
++  ln -sf "$COREDIR/$(basename "$SELF")" ${DESTDIR}/usr/bin/smi-installer
++  chmod 0755 ${DESTDIR}/usr/bin/smi-installer
+   echo "Installing EVDI"
+   local ERRORS
+   ERRORS=$(mktemp)
+   finish() {
+     rm -f "$ERRORS"
+@@ -341,46 +342,46 @@ install()
+ 
+ 	
+   local SMI="$BINS/SMIUSBDisplayManager"
+   local LIBUSB="$BINS/libusb-1.0.so.0.2.0"
+   
+-  cp -f 'evdi.tar.gz' "$COREDIR"
++  cp -f 'evdi.tar.gz' "${DESTDIR}/$COREDIR"
+   echo "Installing $SMI"
+-  cp -f $SMI $COREDIR
++  cp -f $SMI ${DESTDIR}/$COREDIR
+ 
+   echo "Installing libraries"
+-  [ -f $LIBUSB ] && cp -f $LIBUSB /usr/lib/libusb-1.0.so.0
+-  chmod 0755 /usr/lib/libusb-1.0.so.0
+-  [ -f $LIBUSB ] && cp -f $LIBUSB $COREDIR
+-  ln -sf $COREDIR/libusb-1.0.so.0.2.0 $COREDIR/libusb-1.0.so.0
+-  ln -sf $COREDIR/libusb-1.0.so.0.2.0 $COREDIR/libusb-1.0.so
++  [ -f $LIBUSB ] && cp -f $LIBUSB ${DESTDIR}/usr/lib/libusb-1.0.so.0
++  chmod 0755 ${DESTDIR}/usr/lib/libusb-1.0.so.0
++  [ -f $LIBUSB ] && cp -f $LIBUSB ${DESTDIR}/$COREDIR
++  ln -sf $COREDIR/libusb-1.0.so.0.2.0 ${DESTDIR}/$COREDIR/libusb-1.0.so.0
++  ln -sf $COREDIR/libusb-1.0.so.0.2.0 ${DESTDIR}/$COREDIR/libusb-1.0.so
+   
+   echo "Installing firmware packages"
+   local BOOTLOADER0="Bootloader0.bin"
+   local BOOTLOADER1="Bootloader1.bin"
+   local FIRMWARE0BIN="firmware0.bin"
+   local FIRMWARE1BIN="USBDisplay.bin"
+ 
+ 
+ 
+-  [ -f $BOOTLOADER0 ] && cp -f $BOOTLOADER0 $COREDIR
+-  [ -f $BOOTLOADER1 ] && cp -f $BOOTLOADER1 $COREDIR
+-  [ -f $FIRMWARE0BIN ] && cp -f $FIRMWARE0BIN $COREDIR
+-  [ -f $FIRMWARE1BIN ] && cp -f $FIRMWARE1BIN $COREDIR
++  [ -f $BOOTLOADER0 ] && cp -f $BOOTLOADER0 ${DESTDIR}/$COREDIR
++  [ -f $BOOTLOADER1 ] && cp -f $BOOTLOADER1 ${DESTDIR}/$COREDIR
++  [ -f $FIRMWARE0BIN ] && cp -f $FIRMWARE0BIN ${DESTDIR}/$COREDIR
++  [ -f $FIRMWARE1BIN ] && cp -f $FIRMWARE1BIN ${DESTDIR}/$COREDIR
+   
+-  chmod 0755 $COREDIR/SMIUSBDisplayManager
+-  chmod 0755 $COREDIR/libusb*.so*
++  chmod 0755 ${DESTDIR}/$COREDIR/SMIUSBDisplayManager
++  chmod 0755 ${DESTDIR}/$COREDIR/libusb*.so*
+ 
+ 
+   source smi-udev-installer.sh
+-  siliconmotion_bootstrap_script="$COREDIR/smi-udev.sh"
++  siliconmotion_bootstrap_script="${DESTDIR}/$COREDIR/smi-udev.sh"
+   create_bootstrap_file "$SYSTEMINITDAEMON" "$siliconmotion_bootstrap_script"
+   
+   add_wayland_script
+ 
+   echo "Adding udev rule for SiliconMotion devices"
+-  create_udev_rules_file /etc/udev/rules.d/99-smiusbdisplay.rules
++  create_udev_rules_file ${DESTDIR}/etc/udev/rules.d/99-smiusbdisplay.rules
+   xorg_running || udevadm control -R
+   xorg_running || udevadm trigger
+ 
+   echo "Adding upstart scripts"
+   if [ "upstart" == "$SYSTEMINITDAEMON" ]; then
+@@ -418,11 +419,11 @@ uninstall()
+ 
+   echo "[ Removing suspend-resume hooks ]"
+   #remove_pm_scripts
+ 
+   echo "[ Removing udev rule ]"
+-  rm -f /etc/udev/rules.d/99-smiusbdisplay.rules
++  rm -f ${DESTDIR}/etc/udev/rules.d/99-smiusbdisplay.rules
+   udevadm control -R
+   udevadm trigger
+   
+   remove_wayland_script
+ 
+@@ -588,11 +589,11 @@ check_preconditions()
+ 
+   if [ -f /sys/devices/evdi/count ]; then
+ 
+     echo "WARNING: EVDI kernel module is already running." >&2
+ 	
+-	if [ -d $COREDIR ]; then
++	if [ -d ${DESTDIR}/$COREDIR ]; then
+ 	  echo "Please uninstall all other versions of $PRODUCT before attempting to install." >&2
+ 	  echo "Installation terminated." >&2
+ 	  exit 1	
+ 	elif [ -d $OTHERPDDIR ]; then
+ 		echo "WARNING: There are other products in the system using EVDI." >&2
+-- 
+2.39.0
+
