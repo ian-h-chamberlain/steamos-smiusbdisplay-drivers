@@ -1,14 +1,14 @@
-From 8f2a12af1691feb46f9b8c7383eafc2fe5a43eeb Mon Sep 17 00:00:00 2001
+From 2e9ea79512aae0cf662c2de3591cc1ed56cd135e Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 11:09:07 -0400
-Subject: [PATCH] Don't prompt for reboot after install
+Subject: [PATCH 3/6] Don't prompt for reboot after install
 
 ---
  install.sh | 3 ---
  1 file changed, 3 deletions(-)
 
 diff --git a/install.sh b/install.sh
-index 8b8e4a5..2c0d970 100755
+index bf98bde..bcaed82 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -397,13 +397,10 @@ install()

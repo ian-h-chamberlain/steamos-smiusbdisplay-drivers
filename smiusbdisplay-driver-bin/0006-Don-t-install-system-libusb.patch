@@ -1,14 +1,14 @@
-From eb26a6f6dd1364ce7a95ccc38b169a6119e34aaf Mon Sep 17 00:00:00 2001
+From 5fe5b97a77659d414afcc42c8be9c42259f8286f Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 12:55:36 -0400
-Subject: [PATCH] Don't install system libusb
+Subject: [PATCH 6/6] Don't install system libusb
 
 ---
  install.sh | 2 --
  1 file changed, 2 deletions(-)
 
 diff --git a/install.sh b/install.sh
-index 5caac9f..8708a92 100755
+index 5af80a1..d7cc962 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -347,12 +347,10 @@ install()

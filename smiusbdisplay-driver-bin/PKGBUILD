@@ -15,6 +15,13 @@ source=("https://hypershop.zendesk.com/hc/en-us/article_attachments/103443522725
         "0004-Support-DESTDIR-var-for-non-root-installation.patch"
         "0005-Fix-lib-usr-lib-to-match-packaging-standards.patch"
         "0006-Don-t-install-system-libusb.patch")
+sha256sums=('859e3faf69171a28dcabfb0cc2a1e284db41a18c5bc0d4265420244f2cdd2331'
+            'd66f694b1d1b6cfff1caf39d95de673dfc63756f1d465888d8fb98d19e5d0aed'
+            '98e47fdd10dfde3b3897ebcc1d5086ef7a85111f7d8f267a5dfefdbdc4db29dd'
+            'e2b2a7b4cb0d215da7e95bac66fe1f0ef39490362350481732bb2cebaf9a7d4e'
+            '19a91d85d063b239d7255c1d12c6fd2329dde43314b0dcc7b42c77e76917ef92'
+            'f9b7b72bda9ec5e01d367e8fda781428e50244cd80bfeec2b44b6d493b3d9e8e'
+            '04ec007073ef8af94607de630e7c964010bccb9837ed506ac572dc075f4d5b1e')
 noextract=("$_pkgname.$pkgver.run")
 
 prepare() {
@@ -45,10 +52,3 @@ package() {
 
     install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
-sha256sums=('859e3faf69171a28dcabfb0cc2a1e284db41a18c5bc0d4265420244f2cdd2331'
-            '5a725db70f2745585b2fedd69b581328b8f08d4d1f8ae4f951ae7e897cb1fafc'
-            '3f3b63d2c54345fb06601fec6b555cc4f50ce33d667eadc1e95c0e02c5712c6f'
-            '4f5b2b3158acb61c2dde5304b5076e0fc714982e7afdf5ec87aa7a7b8aa055ed'
-            '2927217eb1de71093d8b8431d52501cdec035e290ae86d700c676f8336d08b99'
-            '8a71215514ef5960d0d69088d94af97d02fdfd4b625007413071e0c91dfb5362'
-            '4c4f731139834e5ab82182feddfde6b70ea63283adbf3a728bddd96be08b8853')

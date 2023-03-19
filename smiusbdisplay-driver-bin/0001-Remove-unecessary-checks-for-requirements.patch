@@ -1,7 +1,7 @@
 From c6bb3af5e4c6ce901b13e4da64c0abc1fa5623a3 Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 10:42:55 -0400
-Subject: [PATCH] Remove unecessary checks for requirements
+Subject: [PATCH 1/6] Remove unecessary checks for requirements
 
 This install script is "all-in-one", so it does compatibility checks and
 installs stuff, but since we are relying on `depends` to do that instead

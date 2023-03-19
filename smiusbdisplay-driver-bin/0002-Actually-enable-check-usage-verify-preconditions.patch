@@ -1,7 +1,7 @@
-From c81ff6ab52f096f92ada9d306ada0c61716d5847 Mon Sep 17 00:00:00 2001
+From 248bd3927d6c1b4c89150c40840555f25478764e Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 10:55:00 -0400
-Subject: [PATCH] Actually enable "check" usage verify preconditions
+Subject: [PATCH 2/6] Actually enable "check" usage verify preconditions
 
 The help text says this is already supported, but the implementation
 clearly doesn't support it.
@@ -12,10 +12,22 @@ Also disable the root user check when doing "check" subcommand.
  1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/install.sh b/install.sh
-index 3a7545f..8b8e4a5 100755
+index 3a7545f..bf98bde 100755
 --- a/install.sh
 +++ b/install.sh
-@@ -608,15 +608,10 @@ check_preconditions()
+@@ -524,10 +524,11 @@ check_requirements()
+   KVER_MIN="4.15"
+   version_lt "$KVER" "$KVER_MIN" && missing_requirement "Kernel version $KVER is too old. At least $KVER_MIN is required"
+ 
+   # Linux headers
+   [ ! -d "/lib/modules/$KVER/build" ] && missing_requirement "Linux headers for running kernel, $KVER"
++  return 0
+ }
+ 
+ usage()
+ {
+   echo
+@@ -608,15 +609,10 @@ check_preconditions()
  		exit 1	
  	fi
    fi
@@ -31,7 +43,7 @@ index 3a7545f..8b8e4a5 100755
  detect_distro
  
  while [ -n "$1" ]; do
-@@ -626,21 +621,34 @@ while [ -n "$1" ]; do
+@@ -626,21 +622,33 @@ while [ -n "$1" ]; do
        ;;
  
      uninstall)
@@ -61,7 +73,6 @@ index 3a7545f..8b8e4a5 100755
    install
 +elif [ "$ACTION" == "check" ]; then
 +  check_requirements
-+  check_preconditions
  elif [ "$ACTION" == "uninstall" ]; then
    check_requirements
    uninstall

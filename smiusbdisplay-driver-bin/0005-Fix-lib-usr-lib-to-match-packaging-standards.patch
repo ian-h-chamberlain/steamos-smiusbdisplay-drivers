@@ -1,14 +1,14 @@
-From 5d724e6ab53f38acd4dbd621115c1255975c2d76 Mon Sep 17 00:00:00 2001
+From 1f6d3a790e7d9259eede8191f236ed7e0d6e61a5 Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 12:36:31 -0400
-Subject: [PATCH] Fix /lib -> /usr/lib to match packaging standards
+Subject: [PATCH 5/6] Fix /lib -> /usr/lib to match packaging standards
 
 ---
  install.sh | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/install.sh b/install.sh
-index f852867..5caac9f 100755
+index 160a857..5af80a1 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -196,11 +196,11 @@ fi

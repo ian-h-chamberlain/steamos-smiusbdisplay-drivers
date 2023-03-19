@@ -1,14 +1,14 @@
-From f91e9e6675745478789f2c9c25575f9b3cb7d60e Mon Sep 17 00:00:00 2001
+From 517e6fcd55886257932d3058f1946bb46ae24c2e Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 12:07:19 -0400
-Subject: [PATCH] Support DESTDIR var for non-root installation
+Subject: [PATCH 4/6] Support DESTDIR var for non-root installation
 
 ---
  install.sh | 115 +++++++++++++++++++++++++++--------------------------
  1 file changed, 58 insertions(+), 57 deletions(-)
 
 diff --git a/install.sh b/install.sh
-index 2c0d970..f852867 100755
+index bcaed82..160a857 100755
 --- a/install.sh
 +++ b/install.sh
 @@ -1,8 +1,9 @@
@@ -362,7 +362,7 @@ index 2c0d970..f852867 100755
    
    remove_wayland_script
  
-@@ -588,11 +589,11 @@ check_preconditions()
+@@ -589,11 +590,11 @@ check_preconditions()
  
    if [ -f /sys/devices/evdi/count ]; then
  
