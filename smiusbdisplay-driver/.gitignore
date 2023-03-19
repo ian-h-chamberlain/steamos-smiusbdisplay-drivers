@@ -1,4 +1,3 @@
-
 ### ArchLinuxPackages ###
 *.tar
 *.tar.*
@@ -10,6 +9,7 @@
 *.log
 *.log.*
 *.sig
+*.run
 
 pkg/
 src/
