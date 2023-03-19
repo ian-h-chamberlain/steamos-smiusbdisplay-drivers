@@ -15,6 +15,8 @@ provides=(evdi)
 conflicts=(evdi)
 source=("https://github.com/DisplayLink/evdi/archive/v$pkgver/$_pkgname-$pkgver.tar.gz"
         "0001-Allow-older-kernel-version-for-p4cc-format.patch")
+sha256sums=('484b1166ac1eccd14ec2c88ba426089d001401ba33612620d38d5f214a809fef'
+            '42b7d455ef187199f114fd7479c3f2ee832ed13ca4d37deb5791633a25121b42')
 
 prepare() {
   cd "$_pkgname-$pkgver"
@@ -22,7 +24,6 @@ prepare() {
 }
 
 build() {
-  CFLAGS=
   # We only need to build the library in this step, dkms will build the module
   cd "$_pkgname-$pkgver/library"
   make
@@ -37,5 +38,3 @@ package() {
   install -d "$SRCDIR"
   install -Dm0755 module/* "$SRCDIR"
 }
-sha256sums=('484b1166ac1eccd14ec2c88ba426089d001401ba33612620d38d5f214a809fef'
-            '42b7d455ef187199f114fd7479c3f2ee832ed13ca4d37deb5791633a25121b42')
