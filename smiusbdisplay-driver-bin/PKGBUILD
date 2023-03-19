@@ -7,19 +7,14 @@ pkgdesc="Driver for SiliconMotion USB display devices"
 arch=('i686' 'x86_64')
 url="https://hypershop.zendesk.com/hc/en-us/articles/10344404131988-Linux-Driver-Download"
 license=('custom')
-depends=(evdi libdrm 'bash>=4')
+depends=(evdi libdrm libusb 'bash>=4')
 source=("https://hypershop.zendesk.com/hc/en-us/article_attachments/10344352272532/$_pkgname.$pkgver.run"
         "0001-Remove-unecessary-checks-for-requirements.patch"
         "0002-Actually-enable-check-usage-verify-preconditions.patch"
         "0003-Don-t-prompt-for-reboot-after-install.patch"
         "0004-Support-DESTDIR-var-for-non-root-installation.patch"
-        "0005-Fix-lib-usr-lib-to-match-packaging-standards.patch")
-sha256sums=('859e3faf69171a28dcabfb0cc2a1e284db41a18c5bc0d4265420244f2cdd2331'
-            '5a725db70f2745585b2fedd69b581328b8f08d4d1f8ae4f951ae7e897cb1fafc'
-            '3f3b63d2c54345fb06601fec6b555cc4f50ce33d667eadc1e95c0e02c5712c6f'
-            '4f5b2b3158acb61c2dde5304b5076e0fc714982e7afdf5ec87aa7a7b8aa055ed'
-            '2927217eb1de71093d8b8431d52501cdec035e290ae86d700c676f8336d08b99'
-            '8a71215514ef5960d0d69088d94af97d02fdfd4b625007413071e0c91dfb5362')
+        "0005-Fix-lib-usr-lib-to-match-packaging-standards.patch"
+        "0006-Don-t-install-system-libusb.patch")
 noextract=("$_pkgname.$pkgver.run")
 
 prepare() {
@@ -50,3 +45,10 @@ package() {
 
     install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+sha256sums=('859e3faf69171a28dcabfb0cc2a1e284db41a18c5bc0d4265420244f2cdd2331'
+            '5a725db70f2745585b2fedd69b581328b8f08d4d1f8ae4f951ae7e897cb1fafc'
+            '3f3b63d2c54345fb06601fec6b555cc4f50ce33d667eadc1e95c0e02c5712c6f'
+            '4f5b2b3158acb61c2dde5304b5076e0fc714982e7afdf5ec87aa7a7b8aa055ed'
+            '2927217eb1de71093d8b8431d52501cdec035e290ae86d700c676f8336d08b99'
+            '8a71215514ef5960d0d69088d94af97d02fdfd4b625007413071e0c91dfb5362'
+            '4c4f731139834e5ab82182feddfde6b70ea63283adbf3a728bddd96be08b8853')

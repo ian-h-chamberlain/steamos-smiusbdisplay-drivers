@@ -1,0 +1,29 @@
+From eb26a6f6dd1364ce7a95ccc38b169a6119e34aaf Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Sun, 19 Mar 2023 12:55:36 -0400
+Subject: [PATCH] Don't install system libusb
+
+---
+ install.sh | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/install.sh b/install.sh
+index 5caac9f..8708a92 100755
+--- a/install.sh
++++ b/install.sh
+@@ -347,12 +347,10 @@ install()
+   cp -f 'evdi.tar.gz' "${DESTDIR}/$COREDIR"
+   echo "Installing $SMI"
+   cp -f $SMI ${DESTDIR}/$COREDIR
+ 
+   echo "Installing libraries"
+-  [ -f $LIBUSB ] && cp -f $LIBUSB ${DESTDIR}/usr/lib/libusb-1.0.so.0
+-  chmod 0755 ${DESTDIR}/usr/lib/libusb-1.0.so.0
+   [ -f $LIBUSB ] && cp -f $LIBUSB ${DESTDIR}/$COREDIR
+   ln -sf $COREDIR/libusb-1.0.so.0.2.0 ${DESTDIR}/$COREDIR/libusb-1.0.so.0
+   ln -sf $COREDIR/libusb-1.0.so.0.2.0 ${DESTDIR}/$COREDIR/libusb-1.0.so
+   
+   echo "Installing firmware packages"
+-- 
+2.39.0
+
