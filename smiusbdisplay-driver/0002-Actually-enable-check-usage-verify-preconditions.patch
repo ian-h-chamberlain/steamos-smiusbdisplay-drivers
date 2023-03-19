@@ -1,0 +1,71 @@
+From c81ff6ab52f096f92ada9d306ada0c61716d5847 Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Sun, 19 Mar 2023 10:55:00 -0400
+Subject: [PATCH] Actually enable "check" usage verify preconditions
+
+The help text says this is already supported, but the implementation
+clearly doesn't support it.
+
+Also disable the root user check when doing "check" subcommand.
+---
+ install.sh | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/install.sh b/install.sh
+index 3a7545f..8b8e4a5 100755
+--- a/install.sh
++++ b/install.sh
+@@ -608,15 +608,10 @@ check_preconditions()
+ 		exit 1	
+ 	fi
+   fi
+ }
+ 
+-if [ "$(id -u)" != "0" ]; then
+-  echo "You need to be root to use this script." >&2
+-  exit 1
+-fi
+-
+ echo "$PRODUCT $VERSION install script called: $*"
+ [ -z "$SYSTEMINITDAEMON" ] && detect_init_daemon || echo "Trying to use the forced init system: $SYSTEMINITDAEMON"
+ detect_distro
+ 
+ while [ -n "$1" ]; do
+@@ -626,21 +621,34 @@ while [ -n "$1" ]; do
+       ;;
+ 
+     uninstall)
+       ACTION="uninstall"
+       ;;
++
++    check)
++      ACTION="check"
++      ;;
++
+     *)
+       usage
+       ;;
+   esac
+   shift
+ done
+ 
++if [ "$ACTION" != "check" -a "$(id -u)" != "0" ]; then
++  echo "You need to be root to use this script." >&2
++  exit 1
++fi
++
+ if [ "$ACTION" == "install" ]; then
+   install_dependencies
+   check_requirements
+   check_preconditions
+   install
++elif [ "$ACTION" == "check" ]; then
++  check_requirements
++  check_preconditions
+ elif [ "$ACTION" == "uninstall" ]; then
+   check_requirements
+   uninstall
+ fi
+-- 
+2.39.0
+

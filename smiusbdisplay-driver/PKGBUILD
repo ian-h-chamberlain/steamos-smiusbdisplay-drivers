@@ -1,0 +1,41 @@
+# Maintainer: Ian Chamberlain <https://github.com/ian-h-chamberlain>
+pkgname=SMIUSBDisplay-driver
+pkgver=2.12.0.0
+pkgrel=1
+pkgdesc="Driver for SiliconMotion USB display devices"
+arch=('i686' 'x86_64')
+url="https://hypershop.zendesk.com/hc/en-us/articles/10344404131988-Linux-Driver-Download"
+license=('custom')
+depends=(evdi libdrm)
+source=("https://hypershop.zendesk.com/hc/en-us/article_attachments/10344352272532/$pkgname.$pkgver.run"
+        "0001-Remove-unecessary-checks-for-requirements.patch"
+        "0002-Actually-enable-check-usage-verify-preconditions.patch"
+        "0003-Don-t-prompt-for-reboot-after-install.patch")
+sha256sums=('859e3faf69171a28dcabfb0cc2a1e284db41a18c5bc0d4265420244f2cdd2331'
+            '5a725db70f2745585b2fedd69b581328b8f08d4d1f8ae4f951ae7e897cb1fafc'
+            '3f3b63d2c54345fb06601fec6b555cc4f50ce33d667eadc1e95c0e02c5712c6f'
+            '4f5b2b3158acb61c2dde5304b5076e0fc714982e7afdf5ec87aa7a7b8aa055ed')
+noextract=("$pkgname.$pkgver.run")
+
+prepare() {
+    # The source archive is a self-extracting shell script, so we can use it
+    # directly to extract the contents
+    chmod +x "$pkgname.$pkgver.run"
+	"./$pkgname.$pkgver.run" --target "$srcdir/$pkgname-$pkgver" --noexec
+    cd "$srcdir/$pkgname-$pkgver"
+    for patch_file in "$srcdir"/*.patch; do
+        patch --forward --strip=1 --input="$patch_file"
+    done
+}
+
+check() {
+    "./$pkgname.$pkgver.run" --check
+    cd "$pkgname-$pkgver"
+    ./install.sh check
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+    # TODO install license file
+	./install.sh
+}

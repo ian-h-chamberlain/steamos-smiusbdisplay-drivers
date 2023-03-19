@@ -1,0 +1,63 @@
+From c6bb3af5e4c6ce901b13e4da64c0abc1fa5623a3 Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Sun, 19 Mar 2023 10:42:55 -0400
+Subject: [PATCH] Remove unecessary checks for requirements
+
+This install script is "all-in-one", so it does compatibility checks and
+installs stuff, but since we are relying on `depends` to do that instead
+we can skip the stuff that would otherwise be broken.
+---
+ install.sh | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/install.sh b/install.sh
+index 62b69ea..3a7545f 100755
+--- a/install.sh
++++ b/install.sh
+@@ -202,12 +202,10 @@ add_systemd_service()
+ Description=SiliconMotion Driver Service
+ After=display-manager.service
+ Conflicts=getty@tty7.service
+ 
+ [Service]
+-ExecStartPre=/bin/bash -c "modprobe evdi || (dkms remove -m evdi -v $(awk -F '=' '/PACKAGE_VERSION/{print $2}' /opt/siliconmotion/module/dkms.conf) --all; if [ $? != 0 ]; then rm –rf /var/lib/dkms/$(awk -F '=' '/PACKAGE_VERSION/{print $2}' /opt/siliconmotion/module/dkms.conf) ;fi; dkms install /opt/siliconmotion/module/ && cp /opt/siliconmotion/evdi.conf /etc/modprobe.d && modprobe evdi)"
+-
+ ExecStart=/opt/siliconmotion/SMIUSBDisplayManager
+ Restart=always
+ WorkingDirectory=/opt/siliconmotion
+ RestartSec=5
+ 
+@@ -336,16 +334,10 @@ install()
+   finish() {
+     rm -f "$ERRORS"
+   }
+   trap finish EXIT
+   
+-  if ! install_evdi "evdi.tar.gz" "$ERRORS"; then
+-    echo "ERROR: $(< "$ERRORS")" >&2
+-    cleanup
+-    exit 1
+-  fi
+-
+   local BINS=$(binary_location)
+ 
+ 
+ 	
+   local SMI="$BINS/SMIUSBDisplayManager"
+@@ -525,13 +517,10 @@ install_dependencies_apt()
+ check_requirements()
+ {
+   # DKMS
+   hash dkms 2>/dev/null || missing_requirement "DKMS"
+ 
+-  # libdrm
+-  check_libdrm || missing_requirement "libdrm"
+-
+   # Required kernel version
+   KVER=$(uname -r)
+   KVER_MIN="4.15"
+   version_lt "$KVER" "$KVER_MIN" && missing_requirement "Kernel version $KVER is too old. At least $KVER_MIN is required"
+ 
+-- 
+2.39.0
+
