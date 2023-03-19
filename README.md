@@ -3,6 +3,13 @@
 This repo contains `PKGBUILD` files for installing `evdi` and SMI USB display
 drivers on the Steam Deck (steamOS). Status is "works on my machine".
 
+I use this to use a second display with
+[this HyperDrive USB-C dock](https://www.hypershop.com/products/hyperdrive-dual-4k-hdmi-10-in-1-usb-c-hub),
+since the provided "SiliconMotion InstantView" driver only works on macOS and
+Windows. There is also a semi-supported
+[Ubuntu driver](https://hypershop.zendesk.com/hc/en-us/articles/10344404131988-Linux-Driver-Download),
+which is what this package is based on (reworked for Arch / SteamOS).
+
 ## Build
 
 The easiest way to build everything is in a container, I recommend
