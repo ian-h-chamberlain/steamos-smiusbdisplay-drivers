@@ -49,6 +49,11 @@ cd ../smiusbdisplay-driver-bin
 makepkg -s
 ```
 
+> NOTE: as an alternative you could probably install `evdi-steamos-dkms` on the host,
+> but it would be overwritten on the next OS upgrade so the dkms module won't be
+> automatically rebuilt, which kinda defeats the purpose of dkms. So, manually
+> building and exporting to the host seems to be the best option for now.
+
 ## Install
 
 Now that the kernel module and driver packages are built, install them on the host.

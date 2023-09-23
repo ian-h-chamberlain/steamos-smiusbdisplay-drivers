@@ -11,6 +11,8 @@ arch=('i686' 'x86_64')
 url="https://github.com/DisplayLink/evdi"
 license=('GPL')
 depends=(glibc dkms libdrm)
+optdepends=('linux-neptune-headers: to build on SteamOS 3.4 (kernel 5.13)'
+            'linux-neptune-61-headers: to build on SteamOS 3.5 (kernel 6.1)')
 provides=(evdi)
 conflicts=(evdi)
 source=("https://github.com/DisplayLink/evdi/archive/v$pkgver/$_pkgname-$pkgver.tar.gz"
