@@ -1,7 +1,7 @@
-From 838b865b395c2fa189bc01027d606659aa7df169 Mon Sep 17 00:00:00 2001
+From 9418a9a62888a6d9a5214535756b0735dd186439 Mon Sep 17 00:00:00 2001
 From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
 Date: Sun, 19 Mar 2023 12:43:50 -0400
-Subject: [PATCH] Allow older kernel version for %p4cc format
+Subject: [PATCH 1/2] Allow older kernel version for %p4cc format
 
 SteamOS kernel has backported this feature to 5.13 kernel, so it will
 still build even if the kernel is older than 5.14.
@@ -10,7 +10,7 @@ still build even if the kernel is older than 5.14.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/module/evdi_painter.c b/module/evdi_painter.c
-index eff8395..5e1c8b7 100644
+index bdfd703..7f5d026 100644
 --- a/module/evdi_painter.c
 +++ b/module/evdi_painter.c
 @@ -725,11 +725,11 @@ void evdi_painter_dpms_notify(struct evdi_device *evdi, int mode)
@@ -19,13 +19,13 @@ index eff8395..5e1c8b7 100644
  static void evdi_log_pixel_format(uint32_t pixel_format,
  		char *buf, size_t size)
  {
--#if KERNEL_VERSION(5, 14, 0) <= LINUX_VERSION_CODE
-+#if KERNEL_VERSION(5, 13, 0) <= LINUX_VERSION_CODE
+-#if KERNEL_VERSION(5, 14, 0) <= LINUX_VERSION_CODE || defined(EL8)
++#if KERNEL_VERSION(5, 13, 0) <= LINUX_VERSION_CODE || defined(EL8)
  	snprintf(buf, size, "pixel format %p4cc", &pixel_format);
  #else
  	struct drm_format_name_buf format_name;
  
  	drm_get_format_name(pixel_format, &format_name);
 -- 
-2.39.0
+2.41.0
 

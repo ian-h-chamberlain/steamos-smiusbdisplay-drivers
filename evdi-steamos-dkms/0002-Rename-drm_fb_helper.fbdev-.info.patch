@@ -1,0 +1,57 @@
+From 6a66af5379bb4b96cb2d29eb14a70faf8af88293 Mon Sep 17 00:00:00 2001
+From: Ian Chamberlain <ian.h.chamberlain@gmail.com>
+Date: Fri, 22 Sep 2023 20:57:53 -0400
+Subject: [PATCH 2/2] Rename drm_fb_helper.fbdev -> .info
+
+This change was made in mainlike kernel 6.2 but appears to have been
+backported to 6.1.52-valve2-1-neptune-61
+---
+ module/evdi_fb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/module/evdi_fb.c b/module/evdi_fb.c
+index 3789b33..5fac058 100644
+--- a/module/evdi_fb.c
++++ b/module/evdi_fb.c
+@@ -402,11 +402,11 @@ static int evdifb_create(struct drm_fb_helper *helper,
+ 		goto out_gfree;
+ 
+ 	fb = &efbdev->efb.base;
+ 
+ 	efbdev->helper.fb = fb;
+-#if KERNEL_VERSION(6, 2, 0) <= LINUX_VERSION_CODE
++#if KERNEL_VERSION(6, 1, 0) <= LINUX_VERSION_CODE
+ 	efbdev->helper.info = info;
+ #else
+ 	efbdev->helper.fbdev = info;
+ #endif
+ 
+@@ -461,11 +461,11 @@ static struct drm_fb_helper_funcs evdi_fb_helper_funcs = {
+ static void evdi_fbdev_destroy(__always_unused struct drm_device *dev,
+ 			       struct evdi_fbdev *efbdev)
+ {
+ 	struct fb_info *info;
+ 
+-#if KERNEL_VERSION(6, 2, 0) <= LINUX_VERSION_CODE
++#if KERNEL_VERSION(6, 1, 0) <= LINUX_VERSION_CODE
+ 	if (efbdev->helper.info) {
+ 		info = efbdev->helper.info;
+ #else
+ 	if (efbdev->helper.fbdev) {
+ 		info = efbdev->helper.fbdev;
+@@ -553,11 +553,11 @@ void evdi_fbdev_unplug(struct drm_device *dev)
+ 
+ 	if (!evdi->fbdev)
+ 		return;
+ 
+ 	efbdev = evdi->fbdev;
+-#if KERNEL_VERSION(6, 2, 0) <= LINUX_VERSION_CODE
++#if KERNEL_VERSION(6, 1, 0) <= LINUX_VERSION_CODE
+ 	if (efbdev->helper.info) {
+ 		struct fb_info *info;
+ 
+ 		info = efbdev->helper.info;
+ #else
+-- 
+2.41.0
+

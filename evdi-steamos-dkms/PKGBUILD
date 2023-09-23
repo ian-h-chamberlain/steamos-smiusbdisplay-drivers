@@ -4,7 +4,7 @@
 
 _pkgname=evdi
 pkgname=evdi-steamos-dkms
-pkgver=1.12.0
+pkgver=1.14.1
 pkgrel=1
 pkgdesc="A Linux® kernel module that enables management of multiple screens."
 arch=('i686' 'x86_64')
@@ -14,13 +14,16 @@ depends=(glibc dkms libdrm)
 provides=(evdi)
 conflicts=(evdi)
 source=("https://github.com/DisplayLink/evdi/archive/v$pkgver/$_pkgname-$pkgver.tar.gz"
-        "0001-Allow-older-kernel-version-for-p4cc-format.patch")
-sha256sums=('484b1166ac1eccd14ec2c88ba426089d001401ba33612620d38d5f214a809fef'
-            '42b7d455ef187199f114fd7479c3f2ee832ed13ca4d37deb5791633a25121b42')
+        "0001-Allow-older-kernel-version-for-p4cc-format.patch"
+        "0002-Rename-drm_fb_helper.fbdev-.info.patch")
+sha256sums=('a5f1c10602a6219ac4b13d4f590c16e6fb65bed94f28562260c9b481b48c3828'
+            '99587702751246146c7318d37fc4de3c11d230440955ee895e59d5f309ffaeea'
+            '6574ec9129eded5eea6d1b54e22c8fe587c0e1c3d4855ff9c0d0f47f5c9c00ce')
 
 prepare() {
   cd "$_pkgname-$pkgver"
-  patch --forward --strip=1 --input="${srcdir}/0001-Allow-older-kernel-version-for-p4cc-format.patch"
+  patch --forward --strip=1 --input="${srcdir}/${source[1]}"
+  patch --forward --strip=1 --input="${srcdir}/${source[2]}"
 }
 
 build() {
